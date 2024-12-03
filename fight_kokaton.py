@@ -234,7 +234,7 @@ def main():
                 txt = fonto.render("Game Over", True, (255, 0, 0))  # テキストを描画
                 screen.blit(txt, [WIDTH//2-150, HEIGHT//2])  # テキストを画面中央に描画
                 pg.display.update()
-                time.sleep(1)  # 2秒間表示して終了
+                time.sleep(1)  # 1秒間表示して終了
                 return
     
         # ビームとの衝突判定
@@ -251,6 +251,15 @@ def main():
         beams = [beam for beam in beams if beam and check_bound(beam.rct) == (True, True)]
         # 爆発エフェクトの更新（lifeが0より大きい要素のみ残す）
         explosions = [explosion for explosion in explosions if explosion.life > 0]
+
+        if bombs == []:
+            # ゲームクリア時の処理
+            fonto = pg.font.Font(None, 80)  # フォントを作成
+            txt = fonto.render("Game Clear", True, (255, 0, 0))  # テキストを描画
+            screen.blit(txt, [WIDTH//2-150, HEIGHT//2])  # テキストを画面中央に描画
+            pg.display.update()
+            time.sleep(1)  # 1秒間表示して終了
+            return
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
