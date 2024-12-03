@@ -7,6 +7,7 @@ import pygame as pg
 
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
+NUM_OF_BOMBS = 5  # 爆弾の数
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -145,7 +146,7 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
-    bomb = Bomb((255, 0, 0), 10)
+    bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]  # 爆弾をリストで生成
     clock = pg.time.Clock()
     beam = None
     tmr = 0
@@ -159,18 +160,25 @@ def main():
         screen.blit(bg_img, [0, 0])
         
         # 爆弾がNoneでない場合のみ判定
-        if bomb and bird.rct.colliderect(bomb.rct):
-            # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-            bird.change_img(8, screen)
-            pg.display.update()
-            time.sleep(1)
-            return
+        for i, bomb in enumerate(bombs):
+            if bomb and bird.rct.colliderect(bomb.rct):
+                # ゲームオーバー時の処理
+                fonto = pg.font.Font(None, 80)  # フォントを作成
+                txt = fonto.render("Game Over", True, (255, 0, 0))  # テキストを描画
+                screen.blit(txt, [WIDTH//2-150, HEIGHT//2])  # テキストを画面中央に描画
+                pg.display.update()
+                time.sleep(1)  # 2秒間表示して終了
+                return
+    
         # ビームと爆弾の衝突判定
         if beam and bomb and beam.rct.colliderect(bomb.rct):
             bird.change_img(6, screen)
             pg.display.update()
             beam = None  # ビームを消滅
             bomb = None  # 爆弾を消滅
+        
+        # 爆弾リストの更新（None以外の要素のみ残す）
+        bombs = [bomb for bomb in bombs if bomb is not None]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
