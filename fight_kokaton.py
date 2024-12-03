@@ -163,6 +163,38 @@ class Score:
         self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
         screen.blit(self.img, self.rect)
 
+class Explosion:
+    """
+    爆発エフェクトを管理するクラス
+    """
+    def __init__(self, center: tuple[int, int]):
+        """
+        イニシャライザ
+        引数 center：爆発位置の座標タプル
+        """
+        original = pg.image.load("fig/explosion.gif")
+        self.images = [
+            original, 
+            pg.transform.flip(original, True, True)  # 上下左右反転
+        ]
+        self.index = 0  # 表示する画像のインデックス
+        self.img = self.images[self.index]
+        self.rct = self.img.get_rect()
+        self.rct.center = center  # 爆発位置を設定
+        self.life = 10  # 表示時間（爆発時間）
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発を演出するメソッド
+        引数 screen：描画する画面Surface
+        """
+        if self.life > 0:
+            self.life -= 1
+            self.index = (self.index + 1) % len(self.images)  # 画像を交互に切り替え
+            self.img = self.images[self.index]
+            screen.blit(self.img, self.rct)
+
+
 
 
 def main():
@@ -172,6 +204,7 @@ def main():
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]  # 爆弾をリストで生成
     beams = []
+    explosions = []  # 爆発エフェクトのリストを作成
     clock = pg.time.Clock()
     score = Score()
     beam = None
@@ -199,6 +232,7 @@ def main():
         # ビームとの衝突判定
             for j, beam in enumerate(beams):
                 if beam and bomb and beam.rct.colliderect(bomb.rct):
+                    explosions.append(Explosion(bomb.rct.center))  # 爆発エフェクトを追加
                     bombs[i] = None  # 爆弾を消滅
                     beams[j] = None  # ビームを消滅
                     score.score += 1  # スコアを1点加算
@@ -207,6 +241,8 @@ def main():
         bombs = [bomb for bomb in bombs if bomb is not None]
          # ビームリストの更新（None以外かつ画面内の要素のみ残す）
         beams = [beam for beam in beams if beam and check_bound(beam.rct) == (True, True)]
+        # 爆発エフェクトの更新（lifeが0より大きい要素のみ残す）
+        explosions = [explosion for explosion in explosions if explosion.life > 0]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -214,6 +250,8 @@ def main():
             beam.update(screen) 
         for bomb in bombs:  
             bomb.update(screen)
+        for explosion in explosions:
+            explosion.update(screen)
         score.update(screen)
         pg.display.update()
         tmr += 1
