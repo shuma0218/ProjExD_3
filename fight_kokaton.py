@@ -140,6 +140,30 @@ class Bomb:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Score:
+    """
+    ゲームのスコア表示を管理するクラス
+    """
+    def __init__(self):
+        """
+        Scoreクラスのイニシャライザ
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)  # フォント設定
+        self.color = (0, 0, 255)  # 青色
+        self.score = 0  # 初期スコア
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        self.rect = self.img.get_rect()
+        self.rect.center = (100, HEIGHT - 50)  # 左下に表示
+
+    def update(self, screen: pg.Surface):
+        """
+        スコアを更新して画面に表示する
+        引数 screen：描画する画面Surface
+        """
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        screen.blit(self.img, self.rect)
+
+
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -148,6 +172,7 @@ def main():
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]  # 爆弾をリストで生成
     clock = pg.time.Clock()
+    score = Score()
     beam = None
     tmr = 0
     while True:
@@ -175,7 +200,8 @@ def main():
             bird.change_img(6, screen)
             pg.display.update()
             beam = None  # ビームを消滅
-            bomb = None  # 爆弾を消滅
+            bombs[i] = None  # 爆弾を消滅
+            score.score += 1
         
         # 爆弾リストの更新（None以外の要素のみ残す）
         bombs = [bomb for bomb in bombs if bomb is not None]
@@ -184,8 +210,9 @@ def main():
         bird.update(key_lst, screen)
         if beam:
             beam.update(screen) 
-        if bomb:  
+        for bomb in bombs:  
             bomb.update(screen)
+        score.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
