@@ -92,19 +92,30 @@ class Beam:
     """
     こうかとんが放つビームに関するクラス
     """
-    def __init__(self, bird: "Bird"):
+    def __init__(self, bird: "Bird", angle_offset: float = 0):
         """
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん（Birdインスタンス）
+        引数 angle_offset：こうかとんの向きからの角度オフセット（度数法）
         """
-        self.img = pg.image.load("fig/beam.png")  # ビーム画像をロード
-        self.vx, self.vy = bird.dire  # こうかとんの向きを速度に設定
-        theta = math.atan2(-self.vy, self.vx)  # 角度を計算（-vyで上下逆転を補正）
-        deg = math.degrees(theta)  # 弧度法を度数法に変換
-        self.img = pg.transform.rotozoom(self.img, deg, 1.0)  # 画像を回転
+        self.img = pg.image.load("fig/beam.png")
+        
+        # こうかとんの向きを基準に角度を計算
+        vx, vy = bird.dire
+        base_angle = math.atan2(-vy, vx)  # 基本の向き
+        adjusted_angle = math.radians(angle_offset)  # オフセットをラジアンに変換
+        final_angle = base_angle + adjusted_angle  # 最終角度を計算
+
+        # 速度を計算
+        self.vx = 5 * math.cos(final_angle)
+        self.vy = -5 * math.sin(final_angle)  # y軸は上下反転
+
+        # 画像を回転
+        deg = math.degrees(final_angle)  # ラジアンから度数法に変換
+        self.img = pg.transform.rotozoom(self.img, deg, 1.0)
         self.rct = self.img.get_rect()
 
-        # 初期位置をこうかとんの位置に基づいて設定
+        # 初期位置を設定
         self.rct.centerx = bird.rct.centerx + bird.rct.width * self.vx / 5
         self.rct.centery = bird.rct.centery + bird.rct.height * self.vy / 5
 
@@ -115,7 +126,7 @@ class Beam:
         """
         if check_bound(self.rct) == (True, True):
             self.rct.move_ip(self.vx, self.vy)
-            screen.blit(self.img, self.rct) 
+            screen.blit(self.img, self.rct)
 
 
 class Bomb:
@@ -223,7 +234,10 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                  # スペースキー押下でBeamクラスのインスタンス生成
-                 beams.append(Beam(bird))           
+                 beams.append(Beam(bird))   
+            elif event.type == pg.KEYDOWN and event.key == pg.K_x:
+                for angle in range(-30,31,10):
+                    beams.append(Beam(bird,angle))
         screen.blit(bg_img, [0, 0])
         
         # 爆弾がNoneでない場合のみ判定
