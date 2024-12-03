@@ -236,7 +236,7 @@ def main():
                  # スペースキー押下でBeamクラスのインスタンス生成
                  beams.append(Beam(bird))   
             elif event.type == pg.KEYDOWN and event.key == pg.K_x:
-                for angle in range(-30,31,10):
+                for angle in range(-30,31,15):
                     beams.append(Beam(bird,angle))
         screen.blit(bg_img, [0, 0])
         
