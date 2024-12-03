@@ -28,7 +28,7 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
 
 class Bird:
     """
-    ゲームキャラクター（こうかとん）に関するクラス
+    こうかとんに関するクラス
     """
     delta = {  # 押下キーと移動量の辞書
         pg.K_UP: (0, -5),
@@ -165,7 +165,7 @@ class Score:
     """
     def __init__(self):
         """
-        Scoreクラスのイニシャライザ
+        Scoreクラスの初期化
         """
         self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)  # フォント設定
         self.color = (0, 0, 255)  # 青色
