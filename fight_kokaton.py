@@ -167,6 +167,8 @@ def main():
             return
         # ビームと爆弾の衝突判定
         if beam and bomb and beam.rct.colliderect(bomb.rct):
+            bird.change_img(6, screen)
+            pg.display.update()
             beam = None  # ビームを消滅
             bomb = None  # 爆弾を消滅
 
